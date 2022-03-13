@@ -18,6 +18,12 @@ cat <<EOT
                 <label>Password</label>
                 <input type="password" name="password">
                 <br>
+                <label>First Name</label>
+                <input type="text" name="fname">
+                <br>
+                <label>Last Name</label>
+                <input type="text" name="lname">
+                <br>
                 <button type="submit">Register</button>
         </form>
         <br><br><br>

@@ -26,10 +26,11 @@ then
 
 echo "Set-cookie:sessionID=$sessionID"
 echo "Set-cookie:uid=$user"
-   
+echo  "Set-cookie:status=1"
 fi
 
 echo ""
+
 
 
 
@@ -42,7 +43,6 @@ then
             <title>Home</title>
     </head>
     <body>
-        <h2>$HTTP_COOKIE</h2>
         <h3>Wrong Credentials, You won't be able to access all functionality.</h3>
         <h4>Register to get access.</h4>
         
@@ -55,16 +55,42 @@ else
     <!DOCTYPE html>
     <html>
     <head>
-            <title>Home</title>
+        <title>Home</title>
     </head>
     <body>
         <h3>Welcome back, $user</h3>
-        <h3>Welcome back, $HTTP_COOKIE</h3>
-        
+
+         <form action="post_poem.cgi" method="get">
+                <label>Poem Name</label>
+                <input type="text" name="pname">
+                <br>
+                <button type="submit">Add Poem</button>
+        </form>
+        <br><br><br>
+         <form action="get_poem_by_id.cgi" method="get">
+                <label>Poem ID</label>
+                <input type="text" name="pid">
+                <br>
+                <button type="submit">Search</button>
+        </form>
+        <br><br><br>
+        <form action="get_own_poems.cgi" method="get">
+                <button type="submit">Own Poems</button>
+        </form>
+        <br><br><br>
+        <form action="get_all_poems.cgi" method="get">
+                <button type="submit">All Poems</button>
+        </form>
+        <br><br><br>
+        <form action="post_poem.cgi" method="get">
+                <label>Poem Name</label>
+                <input type="text" name="pname">
+                <br>
+                <button type="submit">Add Poem</button>
+        </form>
+        <br><br><br>
         <form action="/logout.cgi" me>
-            <lable for="sessionID">SessionID</label>
-            <input type="text" value="$sessionID" disabled/>
-            <input type="submit" value="submit" />
+            <input type="submit" value="LOGOUT" />
         </form>
 
 

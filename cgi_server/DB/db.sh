@@ -1,9 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 
 echo
-echo Creating database.
+echo Creating database named userDB.db
 echo
-
 
 sqlite3 /usr/local/apache2/DB/userDB.db <<EOF
 
@@ -13,7 +12,9 @@ CREATE TABLE User (
     uid     STRING PRIMARY KEY
                      UNIQUE
                      NOT NULL,
-    password  STRING
+    password  STRING,
+    fname STRING,
+    lname STRING
 );
 
 DROP TABLE IF EXISTS Poem;
@@ -36,10 +37,11 @@ CREATE TABLE Session (
                       NOT NULL
 );
 
-INSERT INTO User (uid, password) VALUES ("test@uid.com", "c5ca90f6c70d2da6090ce55f9c1c920984196279e25587147184f88412c6e7fa");
-
 INSERT INTO Poem (poemID, poem, uid) VALUES (1, "Hello there", "test@uid.com");
 INSERT INTO Poem (poemID, poem, uid) VALUES (2, "General kenobi", "another@uid.com");
+INSERT INTO Poem (poem, uid) VALUES ("Hello there", "test@uid.com");
+INSERT INTO Poem (poem, uid) VALUES ("General kenobi", "another@uid.com");
+
 
 EOF
 

@@ -10,9 +10,11 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
         read -n $CONTENT_LENGTH POST_DATA <&0
         #echo "$CONTENT_LENGTH"
         uid=`echo "$POST_DATA" | awk '{split($0,array,"&")} END{print array[1]}' | awk '{split($0,array,"=")} END{print array[2]}'`
-        password=`echo "$POST_DATA" | awk '{split($0,array,"&")} END{print array[2]}' | awk '{split($0,array,"=")} END{print array[2]}'`    
+        password=`echo "$POST_DATA" | awk '{split($0,array,"&")} END{print array[2]}' | awk '{split($0,array,"=")} END{print array[2]}'`
+        fname=`echo "$POST_DATA" | awk '{split($0,array,"&")} END{print array[3]}' | awk '{split($0,array,"=")} END{print array[2]}'`
+        lname=`echo "$POST_DATA" | awk '{split($0,array,"&")} END{print array[4]}' | awk '{split($0,array,"=")} END{print array[2]}'`    
         hashed=$(echo -n $password | md5sum | awk '{print $1}')
-        echo -e -n "INSERT INTO User (\"uid\",\"password\") VALUES (\"$uid\",\"$hashed\");" |  sqlite3 /usr/local/apache2/DB/userDB.db   
+        echo -e -n "INSERT INTO User (\"uid\",\"password\",\"fname\",\"lname\") VALUES (\"$uid\",\"$hashed\",\"$fname\",\"$lname\");" |  sqlite3 /usr/local/apache2/DB/userDB.db   
     fi
 
 fi
