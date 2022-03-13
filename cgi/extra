@@ -1,0 +1,46 @@
+#!/bin/sh
+echo "Content-type: text/xml; charset=utf-8"
+echo ""
+
+
+poems=`echo -n 'select * from poem;'  | sqlite3 /usr/local/apache2/DB/userDB.db -line`
+
+cat <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+				
+<Poems
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>                      
+EOF
+
+
+IFS='= '
+read -r -a arr <<< "$poems"
+
+poemID=""
+for i in "${!arr[@]}"
+do 
+    if [ "${arr[i]}" = "poemID" ]; then
+        ((i=i+1))
+        poemID=${arr[i]}
+        poem=$(echo -n "select poem from poem where id=\"$poemID\" ;"  | sqlite3 /usr/local/apache2/DB/userDB.db -line)
+        uid=$(echo -n "select uid from poem where id=\"$poemID\" ;"  | sqlite3 /usr/local/apache2/DB/userDB.db -line)
+        cat <<EOF
+        <Poem>
+        <ID>$poemID</ID>
+        <Name>$poem</Name>
+        <uid>$uid</uid>
+
+        </Poem>
+EOF
+
+    fi
+
+done
+
+  
+cat <<EOF
+$uid</Poems>
+EOF
+
+
