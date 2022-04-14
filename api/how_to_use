@@ -1,0 +1,12 @@
+#run start.sh
+#starting point url 
+    http://localhost:8081/startPoint.cgi 
+
+
+
+
+# this command gives terminal access of container  --> docker exec -it cgiserver bash
+
+#run stop.sh to stop the container ( but remember it will entirely delete the container)
+#if you want to just pause the container --> docker stop cgiserver 
+# cgiserver is the name of our container

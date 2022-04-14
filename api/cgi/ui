@@ -1,0 +1,242 @@
+#!/bin/sh
+
+function createXML() {
+    case $1 in
+        login)
+            echo '
+                <?xml version="1.0" encoding="UTF-8"?>
+                <login
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:noNamespaceSchemaLocation="http://81.167.182.254:8888/Schema.xsd">
+                    <email>'$2'</email>
+                    <password>'$3'</password>
+                </login>'
+        ;;
+        addPoem)
+            echo '
+                <?xml version="1.0" encoding="UTF-8"?>
+                <addPoem
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:noNamespaceSchemaLocation="http://81.167.182.254:8888/Schema.xsd">
+                    <name>'$2'</name>
+                </addPoem>'
+        ;;
+        updatePoem)
+            echo '
+                <?xml version="1.0" encoding="UTF-8"?>
+                <updatePoem
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:noNamespaceSchemaLocation="http://81.167.182.254:8888/Schema.xsd">
+                    <id>'$2'</id>
+                    <name>'$3'</name>
+                </updatePoem>'
+        ;;
+    esac
+}
+
+function displayStatus() {
+    if [ $1 != 0 ]
+    then
+        echo "<img src='http://81.167.182.254:8888/css/images/cross.svg' class='statusImage cross'>You are not logged in. Some functions will be unavailable."
+    else
+        echo "<img src='http://81.167.182.254:8888/css/images/check.svg' class='statusImage check'>You are logged in"
+    fi
+}
+
+function getCSS() {
+    echo "  <!DOCTYPE html>
+                <html lang='en'>
+
+                <head>
+                    <meta charset='UTF-8'>
+                    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+                    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                    <title>Poems</title>
+                    <link rel='stylesheet' href='http://81.167.182.254:8888/css/main.css'>
+                </head>"
+}
+
+#Validating login for status
+sessionID=$(echo $HTTP_COOKIE | cut -d '=' -f2)
+response=$(wget -O- -S --header="Cookie: $HTTP_COOKIE" http://81.167.182.254:1337/api/validate)
+status=$(echo $response | xml sel -t -v "/validate/status" -n)
+
+# echo "Content-type: text/plain"
+# echo
+
+# echo hello
+# echo $response
+# echo Status: $status
+
+if [ $REQUEST_METHOD == 'GET' ]
+then
+    echo "Content-type: text/html"
+    echo
+    
+    display=$(displayStatus $status)
+
+    wget -O- -q http://81.167.182.254:8888/main.html | sed "/<div class=\"login_status\" id=\"login_status\">/a$display"
+
+elif [ $REQUEST_METHOD == 'POST' ]
+then
+    read POST_STRING
+    decoded_post=$(printf '%b' "${POST_STRING//%/\\x}")
+    type=$(echo $decoded_post | cut -d '=' -f2 | cut -d '&' -f1)
+        
+    case $type in
+    displayLogin)
+        echo "Content-type: text/html"
+        echo
+        wget -O- -q http://81.167.182.254:8888/login.html
+    ;;
+    login) #DONE
+        email=$(echo $decoded_post | cut -d '=' -f3 | cut -d '&' -f1)
+        password=$(echo $decoded_post | cut -d '=' -f4 | cut -d '&' -f1)
+
+        XML=$(createXML login $email $password)
+        response=$(wget -O - -S --header='Content-Type: text/xml' --header="Cookie: $HTTP_COOKIE" --post-data "$XML" http://81.167.182.254:1337/api)
+        sessionID=$(echo $response | xml sel -t -v "/login/sessionID" -n)
+
+        if [ -z $sessionID ]
+        then
+            echo "Content-type: text/html"
+            echo
+            echo $(getCSS)
+
+            echo '  <body>
+                    <div>'
+            echo '<p> Wrong username/password. </p>'
+            echo '</div>'
+
+            echo '<button class="backToMainButton" onclick="window.location.href=`http://81.167.182.254:9999/ui`">Back to main page.</button>'
+            echo '</body>'
+        elif [ $sessionID == '-1' ]
+        then
+            echo "Content-type: text/html"
+            echo
+            echo $(getCSS)
+
+            echo '  <body>
+                    <div>'
+            echo '<p> You are already logged in. If you want to login with another user, log out first. </p>'
+            echo '</div>'
+
+            echo '<button class="backToMainButton" onclick="window.location.href=`http://81.167.182.254:9999/ui`">Back to main page.</button>'
+            echo '</body>'
+        else
+            echo "Set-Cookie: sessionID=$sessionID; Path=/;"
+            echo "Content-type: text/html"
+            echo
+
+            url="http://81.167.182.254:9999/ui"
+            echo '<meta http-equiv="Refresh" content="0; url='$url'"/>'
+        fi
+    ;;
+    getPoem) #DONE
+        echo "Content-type: text/html"
+        echo
+
+        echo $(displayStatus $status)
+        echo $(getCSS)
+
+        poemID=$(echo $decoded_post | cut -d '=' -f3)
+        response=$(wget -O- -S --header='Content-Type: text/plain' http://81.167.182.254:1337/api/poem/$poemID)
+
+        echo '  <body>
+                <center class="responseText">'
+        # echo $response | xmlstarlet tr --omit-decl poem.xsl
+		echo $response | xmlstarlet tr --omit-decl http://81.167.182.254:8888/poem.xsl
+        echo '</center>'
+
+    	echo '<button class="backButton" onclick="window.location.href=`http://81.167.182.254:9999/ui`">Back</button>'
+        echo '</body>'
+    ;;
+    addPoem)
+        echo "Content-type: text/html"
+        echo
+        echo $(getCSS)
+        
+        echo $(displayStatus $status)
+
+        poemName=$(echo $decoded_post | cut -d '=' -f3 | tr '+' ' ')
+        XML=$(createXML addPoem "$poemName")
+
+        echo '  <body>
+                <center>'
+        wget -O- -q -S --header='Content-Type: text/xml' --header="Cookie: $HTTP_COOKIE" --post-data "$XML" http://81.167.182.254:1337/api
+        echo '</center>'
+
+        echo '<button class="backButton" onclick="window.location.href=`http://81.167.182.254:9999/ui`">Back</button>'
+        echo '</body>'
+    ;;
+    updatePoem)
+        echo "Content-type: text/html"
+        echo
+        echo $(getCSS)
+        
+        echo $(displayStatus $status)
+        
+        poemID=$(echo $decoded_post | cut -d '=' -f3 | cut -d '&' -f1)
+        poemName=$(echo $decoded_post | cut -d '=' -f4 | cut -d '&' -f1 | tr '+' ' ')
+
+        XML=$(createXML updatePoem $poemID "$poemName")
+
+        echo '  <body>
+                <div>'
+        wget --method=PUT -q -O- -S --header='Content-Type: text/xml' --header="Cookie: $HTTP_COOKIE" --body-data "$XML" http://81.167.182.254:1337/api/
+        echo '</div>'
+
+        echo '<button class="backButton" onclick="window.location.href=`http://81.167.182.254:9999/ui`">Back</button>'
+        echo '</body>'
+
+    ;;
+    deletePoem)
+        echo "Content-type: text/html"
+        echo
+        echo $(getCSS)
+        
+        echo $(displayStatus $status)
+
+        poemID=$(echo $decoded_post | cut -d '=' -f3 | cut -d '&' -f1)
+        echo '  <body>
+                <div>'
+        wget --method=DELETE -q -O- -S --header="Cookie: $HTTP_COOKIE" http://81.167.182.254:1337/api/$poemID
+        echo '</div>'
+
+        echo '<button class="backButton" onclick="window.location.href=`http://81.167.182.254:9999/ui`">Back</button>'
+        echo '</body>'
+
+    ;;
+    deleteAll)
+        echo "Content-type: text/html"
+        echo
+        echo $(getCSS)
+        
+        echo $(displayStatus $status)
+
+        echo '  <body>
+                <div>'
+        wget --method=DELETE -q -O- -S --header="Cookie: $HTTP_COOKIE" http://81.167.182.254:1337/api/poem/
+        echo '</div>'
+
+        echo '<button class="backButton" onclick="window.location.href=`http://81.167.182.254:9999/ui`">Back</button>'
+        echo '</body>'
+    ;;
+    logout)
+        response=$(wget -O- -S --header="Cookie: $HTTP_COOKIE" http://81.167.182.254:1337/api/logout)
+
+        echo "Set-Cookie: sessionID=$sessionID; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+        echo "Content-type: text/html"
+        echo
+        echo $(getCSS)
+
+        echo '  <body>
+                <div>'
+        echo "You are logged out."
+        echo '</div>'
+
+        echo '<button class="backButton" onclick="window.location.href=`http://81.167.182.254:9999/ui`">Back</button>'
+        echo '</body>'
+    ;;
+    esac
+fi

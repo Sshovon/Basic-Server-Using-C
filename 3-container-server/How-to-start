@@ -1,0 +1,32 @@
+$--> command 
+#--> comment
+
+USEFUL INFORMATION:
+* httpd:alpine is a official docker image
+* server-image is the one which we created using createServerImage.sh file 
+
+
+
+steps:
+##1st and very important thing##
+#start the unshare-container (container-1) first.
+#go to unshare-server directory and execute the start.sh with sudo (****very very important to start the server with sudo****)
+$ sudo ./start.sh
+
+**important
+$ sudo ./stop.sh (using sudo is mandatory)
+
+#create the base image which is responsible for creating apache server
+-->run the createServerImage.sh file
+$ ./createServerImage.sh  (1st time only)
+
+#creating container-2 and container-3 which will be based on our server-image image which is created above.
+--> go to cgi_server directory
+    #this start.sh is responsible for creating container-2 which will be our database and rest api 
+    #we have seperate Dockerfile for this container-2
+$ ./start.sh 
+
+--> go to web-interface directory
+    #this start.sh is responsible for creating container-3 which will be our web interface
+    #we also have a seperate Dockerfile for this container-3
+$ ./start.sh

@@ -1,0 +1,66 @@
+for container: port=80
+for host machien: port=8081
+
+
+POST METHOD:
+
+#login
+curl -X POST localhost:8081/login -d '<credential><email>frcshovon@gmail.com</email><password>1234</password></credential>'
+
+
+#add a poem
+
+
+curl --cookie "sessionID=d046d18364141b1be91e" -X POST localhost:8081/poem -d '<poem><title>new poem</title></poem>'
+
+
+
+GET METHOD:
+
+#sessionID must be passed for logout from a specific user
+#logout
+curl --cookie "sessionID=e79f6ee657a991c197b2" localhost:8081/logout
+
+
+#view all poems
+curl localhost:8081/poems
+
+
+#view specific poem
+#id = 1 , 2 , 55 ,11 etc numbers
+
+curl localhost:8081/poem/id
+
+#formatted output 
+ 
+curl localhost:8081/poem/id | xmlstarlet format --indent-tab
+
+
+
+#view own pomes
+
+curl --cookie "sessionID=**********" localhost:8081/poems/own
+
+
+
+DELETE METHODS:
+
+
+# delete own poem by id
+curl --cookie "sessionID=eed4e10a1836f13e5a7c" -X DELETE localhost:8081/poem/3
+
+
+#delete all own poem
+
+curl --cookie "sessionID=eed4e10a1836f13e5a7c" -X DELETE localhost:8081/deleteall
+
+
+
+PUT METHODS:curl --cookie "sessionID=e79f6ee657a991c197b2" -X POST localhost:8081/poem -d '<poem><title>new poem</title></poem>'
+
+
+
+#edit own poem
+
+curl --cookie "sessionID=d046d18364141b1be91e" -X PUT localhost:8081/poem/5 -d '<poem><title>old poem</title></poem>'
+

@@ -1,0 +1,27 @@
+##check container limits 
+$docker stats 
+
+
+#to check swap memory is enabled or not
+$docker info --> if no swap limit warning then we have to edit the grub file, check following link for better understandment
+
+https://docs.docker.com/engine/install/linux-postinstall/#your-kernel-does-not-support-cgroup-swap-limit-capabilities 
+
+
+#dont run container as root 
+
+
+
+
+#Limit the specific CPUs or cores a container can use. A comma-separated list or hyphen-separated range of CPUs a container can use, if you have more than one CPU. The first CPU is numbered 0. A valid value might be 0-3 (to use the first, second, third, and fourth CPU) or 1,3 (to use the second and fourth CPU).
+--cpuset-cpus
+
+#set memory limits 
+
+
+
+#FOR DETAILED INFORMATION ABOUT MEMORY AND CPU RESOURCE ALLOCATION VISIT FOLLOWING LINK--> security requirement -2
+https://docs.docker.com/config/containers/resource_constraints/
+
+#FOR INFORMATION ABOUT RUNTIME PRIVILEGES & LINUX CAPABILITIES --> security requirement -3
+https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities

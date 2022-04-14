@@ -1,0 +1,36 @@
+poemdb {
+    font-size: 100%;
+    margin: 0.5em;
+    font-family: Verdana;
+    display: block;
+}
+
+Poem {
+    display: block;
+    border: 1px solid silver;
+    margin: 0.5em;
+    padding: 0.5em;
+    background-color: whitesmoke;
+}
+
+poem,
+poemID,
+email {
+    display: block;
+    text-align: center;
+}
+
+poemID {
+    color: green;
+    font-size:15px;
+}
+
+poem {
+    color: blue;
+    font-size:15px;
+}
+
+email {
+    color: orange;
+    font-size:15px;
+}
