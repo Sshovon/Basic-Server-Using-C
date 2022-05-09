@@ -30,7 +30,7 @@ CREATE TABLE User (
 
 DROP TABLE IF EXISTS Poem;
 
-    CREATE TABLE Poem (
+CREATE TABLE Poem (
         poemID INTEGER PRIMARY KEY
                     AUTOINCREMENT,
         poem   STRING,

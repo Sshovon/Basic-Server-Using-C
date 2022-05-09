@@ -6,12 +6,12 @@ POST METHOD:
 
 #login
 
-curl -X POST 172.17.0.2/login -d '<credential><email>sam@gmail.com</email><password>1234</password></credential>' 
+curl -X POST http://localhost:8180/login -d '<credential><email>sam@gmail.com</email><password>1234</password></credential>' 
 
 
 #add a poem
 
-curl -c - --cookie "sessionID=59ef871c48b90765fbc0" -X POST 172.17.0.2/poem -d '<poem><title>new sam poem</title></poem>' 
+curl --cookie "sessionID=f11b4eb503df48eecb30" -X POST http://localhost:8180/poem -d '<poem><title>new  terminal poem</title></poem>' 
 
 HTTP_COOKIE="sessionID=b7f86864ec53177423dd"
 sessionID=key
@@ -23,38 +23,38 @@ GET METHOD:
 #logout
 
 
-curl --cookie "sessionID=59ef871c48b90765fbc0" 172.17.0.2/logout 
+curl --cookie "sessionID=ed7dc32894d7c27cbd07" http://localhost:8180/logout 
 
 #view all poems
 
-curl -c - 172.17.0.2/poems 
+curl http://localhost:8180/poems 
 
 #view specific poem
 #id = 1 , 2 , 55 ,11 etc numbers
 
-curl localhost:8180/poem/3
+curl http://localhost:8180/poem/3
 
 
 
 #view own pomes
 
-curl -c - --cookie "sessionID=ea0ba92526511fe37675" localhost:8180/poems/own 
+curl --cookie "sessionID=e162b6cb7410515dc570" http://localhost:8180/poems/own 
 
 
 DELETE METHODS:
 
 
 # delete own poem by id
-curl --cookie "sessionID=aa63e25086a99d29c7dc" -X DELETE localhost:8180/poem/3
+curl --cookie "sessionID=f11b4eb503df48eecb30" -X DELETE http://localhost:8180/poem/4
 
 #delete all own poem
 
-curl --cookie "sessionID=454c580ab08d1bfd3a80" -X DELETE localhost:8180/deleteall 
+curl --cookie "sessionID=f11b4eb503df48eecb30" -X DELETE http://localhost:8180/deleteall 
 
 
 PUT METHODS:
 
 #edit own poem
 
-curl --cookie "sessionID=aa63e25086a99d29c7dc" -X PUT localhost:8180/poem/5 -d '<poem><title>old sam poem</title></poem>' 
+curl --cookie "sessionID=f11b4eb503df48eecb30" -X PUT localhost:8180/poem/4 -d '<poem><title>updated from terminal </title></poem>' 
 

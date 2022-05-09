@@ -6,7 +6,7 @@ echo "Content-type:text/html;charset=utf-8"
 
 
 cgi_server=172.17.0.2
-unshare_server=http://172.17.0.1
+unshare_server=http://172.17.0.1  #http://localhost
 ui_server=172.17.0.3
 
 
@@ -119,7 +119,7 @@ if [ $REQUEST_URI = "/viewall?" ];then
 echo "<table>"
 echo "<tr><th>poemID</th><th>Poem</th><th>email</th></tr>"
 #retriving data from cgi-server and reading data one by one and setting it into the table
-curl $cgi_server/poems | grep "<Poem>" | while read -r line;
+curl $cgi_server/poem | grep "<Poem>" | while read -r line;
 do
     poemID=$(echo $line | awk -F '<poemID>' '{print $2}' | awk -F '</poemID>' '{print $1}')
     poem=$(echo $line | awk -F '<poem>' '{print $2}' | awk -F '</poem>' '{print $1}')

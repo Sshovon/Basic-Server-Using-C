@@ -3,7 +3,6 @@
 
 function XMLGenerator() {
     echo "<?xml version='1.0' encoding='UTF-8'?>"
-    #echo "<?xml-stylesheet type='text/xsl' href='http://172.17.0.2/poemdb.xsl'?>"
     echo "<?xml-stylesheet type='text/css' href='http://172.17.0.1/poems.css'?>"
     echo "<poemdb xmlns:xs='http://www.w3.org/2001/XMLSchema-instance' xs:schemaLocation='http://172.17.0.1/ poemdb.xsd'>"
 } 
@@ -53,12 +52,14 @@ validRequest=$(echo -n "select sessionID from Session where sessionID=\"$session
 #validRequest=59ef871c48b90765fbc0 case-1--> we have the sessionID in our database which the user send with the request--> then validRequest will not be empty
 #validRequest="" case-2 validRequest will be empty
 
-echo "Set-Cookie:sessionID=$sessionID"
-echo 'Content-Type: text/xml'
-
+#echo 'Content-Type: text/xml'
+echo "Content-type:application/xml;charset=utf-8"  
+echo "Access-Control-Allow-Origin: http://localhost"  #we can make request to rest api from any localhost server  without this cros will give cross-domain request error
+echo "Access-Control-Allow-Methods: GET,POST,DELETE,PUT" # allowed server
+echo "Access-Control-Allow-Credentials: true"
+echo "Set-Cookie:sessionID=$validRequest; path=/ ;sameSite=Lax" 
 
 echo ""
-
 
 # echo $BODY_REQ
 # echo $HTTP_COOKIE
@@ -128,7 +129,6 @@ if [ "$REQUEST_METHOD" = "POST" ];then
 fi
 
 if [ "$REQUEST_METHOD" = "GET" ];then
-
     if [ $REQUEST_URI = '/logout' ];then
         #checking if you are logged in
         if [ ! -z $validRequest ];then #if logged in
@@ -144,7 +144,7 @@ if [ "$REQUEST_METHOD" = "GET" ];then
 
     #not a restircted route
     #anyone can view all poems without login
-    if [ $REQUEST_URI = '/poems' ];then
+    if [ $REQUEST_URI = '/poem' ];then
         
         
         poems=$(echo "select poemID from poem;" | sqlite3 /usr/local/apache2/DB/userDB.db)
@@ -206,6 +206,20 @@ if [ "$REQUEST_METHOD" = "GET" ];then
             echo "</poemdb>"
         fi
     fi
+
+#new route
+    if [ $REQUEST_URI = '/valid' ];then
+        
+        valid=$(echo -n "select sessionID from Session where sessionID=\"$sessionID\"" |  sqlite3 /usr/local/apache2/DB/userDB.db )
+        XMLGenerator
+        if [ $valid != "" ];then
+            echo "<Response><message>valid</message></Response>"
+        else
+            echo "<Response><message>invalid</message></Response>"
+        fi
+                
+    fi
+
 
 fi
 
